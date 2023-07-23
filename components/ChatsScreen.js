@@ -1,5 +1,6 @@
 import React from 'react';
  import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
  const ChatsScreen = ({ navigation }) => {
    // Sample list of chats
@@ -22,8 +23,41 @@ import React from 'react';
      );
 
    const handleSignOut = () => {
-     // Add your sign-out logic here
-     // For example, clearing authentication tokens or navigating to the sign-in screen
+     //would remove const handleSignOut = () => { if code bellow worked
+       // Have commented out so the navigation still works
+        {/* const logout = async () => {
+                try {
+                  const token = await AsyncStorage.getItem('whatsthat_session_token');
+                  if (!token) {
+                    console.log('Token not found. Already logged out.');
+                    navigation.navigate('SignIn');
+                    return;
+                  }
+
+                  const response = await fetch('http://localhost:3333/api/1.0.0/logout', {
+                    method: 'POST',
+                    headers: {
+                      'X-Authorization': token,
+                    },
+                  });
+
+                  if (response.status === 200) {
+                    // Successfully logged out
+                    await AsyncStorage.removeItem('whatsthat_session_token');
+                    await AsyncStorage.removeItem('whatsthat_user_id');
+                    navigation.navigate('SignIn');
+                  } else if (response.status === 401) {
+                    console.log('Unauthorised');
+                    await AsyncStorage.removeItem('whatsthat_session_token');
+                    await AsyncStorage.removeItem('whatsthat_user_id');
+                    navigation.navigate('SignIn');
+                  } else {
+                    throw new Error('Something went wrong');
+                  }
+                } catch (error) {
+                  console.log('Error during logout:', error);
+                }
+              }; */}
      navigation.navigate('SignIn');
    };
 

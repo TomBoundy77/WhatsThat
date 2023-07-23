@@ -1,10 +1,66 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const HomeScreen = ({ navigation }) => {
   const handleSignOut = () => {
-    // Add your sign-out logic here
-    // For example, clearing authentication tokens or navigating to the sign-in screen
+  //would remove const handleSignOut = () => { if code bellow worked
+  // Have commented out so the navigation still works
+   {/* useEffect(() => {
+           const checkToken = async () => {
+             try {
+               // Check if the token exists in AsyncStorage
+               const token = await AsyncStorage.getItem('whatsthat_session_token');
+               if (!token) {
+                 // If token doesn't exist, navigate back to SignInScreen
+                 navigation.navigate('SignIn');
+               }
+             } catch (error) {
+               console.log('Error checking token:', error);
+             }
+           };
+
+           // Add the focus listener
+           const unsubscribe = navigation.addListener('focus', checkToken);
+
+           // Clean up the listener on unmount
+           return unsubscribe;
+         }, [navigation]);
+
+
+   const logout = async () => {
+           try {
+             const token = await AsyncStorage.getItem('whatsthat_session_token');
+             if (!token) {
+               console.log('Token not found. Already logged out.');
+               navigation.navigate('SignIn');
+               return;
+             }
+
+             const response = await fetch('http://localhost:3333/api/1.0.0/logout', {
+               method: 'POST',
+               headers: {
+                 'X-Authorization': token,
+               },
+             });
+
+             if (response.status === 200) {
+               // Successfully logged out
+               await AsyncStorage.removeItem('whatsthat_session_token');
+               await AsyncStorage.removeItem('whatsthat_user_id');
+               navigation.navigate('SignIn');
+             } else if (response.status === 401) {
+               console.log('Unauthorised');
+               await AsyncStorage.removeItem('whatsthat_session_token');
+               await AsyncStorage.removeItem('whatsthat_user_id');
+               navigation.navigate('SignIn');
+             } else {
+               throw new Error('Something went wrong');
+             }
+           } catch (error) {
+             console.log('Error during logout:', error);
+           }
+         }; */}
     navigation.navigate('SignIn');
   };
 

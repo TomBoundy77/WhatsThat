@@ -3,6 +3,28 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignInScreen = ({ navigation }) => {
+
+ {/* useEffect(() => {
+    const checkToken = async () => {
+      try {
+        // Check if the token exists in AsyncStorage
+        const token = await AsyncStorage.getItem('whatsthat_session_token');
+        if (token) {
+          // If token exists, navigate to HomeScreen
+          navigation.navigate('Home');
+        }
+      } catch (error) {
+        console.log('Error checking token:', error);
+      }
+    };
+
+    // Add the focus listener
+    const unsubscribe = navigation.addListener('focus', checkToken);
+
+    // Clean up the listener on unmount
+    return unsubscribe;
+  }, [navigation]); */}
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -11,7 +33,7 @@ const SignInScreen = ({ navigation }) => {
     if (!username || !password) {
       setError('Please enter both username and password.');
     } else {
-      setError(''); // Clear the error message if both fields are filled
+      setError(''); // couldn't get server to respond so commented out so you have access to the app
 
    {/*  try {
         const response = await fetch('http://localhost:3333/api/1.0.0/login', {
@@ -26,8 +48,8 @@ const SignInScreen = ({ navigation }) => {
         if (response.status === 200) {
           const data = await response.json();
           // Save the token and ID to AsyncStorage
-          await AsyncStorage.setItem('userToken', data.token);
-          await AsyncStorage.setItem('userId', data.id.toString());*/}
+          await AsyncStorage.setItem('whatsthat_session_token', data.token);
+          await AsyncStorage.setItem('whatsthat_user_id', data.id.toString());*/}
 
           // Navigate to the Home screen
           navigation.navigate('Home');
