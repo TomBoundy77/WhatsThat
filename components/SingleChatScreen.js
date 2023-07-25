@@ -1,16 +1,35 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, AsyncStorage } from 'react-native';
 
 const SingleChatScreen = ({ route }) => {
-  const { chatName } = route.params;
+  const { chatName, draft } = route.params;
 
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(draft?.text || '');
   const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    if (draft) {
+      // If a draft is provided in the route params, set it to the message state
+      setMessage(draft.text);
+    }
+  }, [draft]);
 
   const handleSendMessage = () => {
     if (message.trim() !== '') {
       setMessages([...messages, { id: messages.length.toString(), text: message }]);
       setMessage('');
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    try {
+      if (message.trim() !== '') {
+        const timestamp = new Date().getTime().toString();
+        await AsyncStorage.setItem(timestamp, message.trim());
+        setMessage('');
+      }
+    } catch (error) {
+      console.log('Error saving draft:', error);
     }
   };
 
@@ -31,6 +50,9 @@ const SingleChatScreen = ({ route }) => {
           value={message}
           onChangeText={setMessage}
         />
+        <TouchableOpacity style={styles.saveButton} onPress={handleSaveDraft}>
+          <Text style={styles.saveButtonText}>Save Draft</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
           <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
@@ -74,6 +96,19 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
   },
+  saveButton: {
+    backgroundColor: 'orange',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+    marginLeft: 10,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   sendButton: {
     backgroundColor: 'blue',
     paddingVertical: 8,
@@ -90,3 +125,4 @@ const styles = StyleSheet.create({
 });
 
 export default SingleChatScreen;
+

@@ -14,6 +14,7 @@ import SingleChatScreen from './components/SingleChatScreen';
 import ContactsScreen from './components/ContactsScreen';
 import AddContactScreen from './components/AddContactScreen';
 import AddBlockedUser from './components/AddBlockedUser';
+import DraftsScreen from './components/DraftsScreen';
 
 const AuthStack = createStackNavigator();
 const Tab = createBottomTabNavigator();

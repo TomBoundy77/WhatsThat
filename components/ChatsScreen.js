@@ -1,5 +1,5 @@
 import React from 'react';
- import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
  const ChatsScreen = ({ navigation }) => {
