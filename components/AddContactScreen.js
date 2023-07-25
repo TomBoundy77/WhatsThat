@@ -4,12 +4,53 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 const AddContactScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [id, setId] = useState('');
+  const [userId, setUserId] = useState('');
 
-  const handleAddContact = () => {
-    // Add your logic to save the new contact to your data store or API
-    // For simplicity, we'll just navigate back to the ContactsScreen
-    navigation.goBack();
+  const handleAddContact = async () => {
+    try {
+      // Request URL and token
+      const url = 'http://localhost:3333/api/1.0.0/user/contact';
+      const token = 'b5d9e7be6c97aa855f721b6e742120f2'; // Hard-coded authentication token
+
+      // Request body
+      const data = {
+        user_id: parseInt(userId), // Convert to an integer
+      };
+
+      // Perform the POST request
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Authorization': token,
+        },
+        body: JSON.stringify(data),
+      });
+
+      // Handle different response codes
+      if (response.status === 200) {
+        // Successfully added contact
+        navigation.goBack();
+      } else if (response.status === 400) {
+        // You can't add yourself as a contact
+        throw new Error("You can't add yourself as a contact");
+      } else if (response.status === 401) {
+        // Unauthorized
+        throw new Error('Unauthorized');
+      } else if (response.status === 404) {
+        // Not Found
+        throw new Error('Not Found');
+      } else if (response.status === 500) {
+        // Server Error
+        throw new Error('Server Error');
+      } else {
+        // Something went wrong
+        throw new Error('Something went wrong');
+      }
+    } catch (error) {
+      // Handle any errors that occurred during the POST request
+      console.log('Error adding contact:', error.message);
+    }
   };
 
   return (
@@ -29,9 +70,9 @@ const AddContactScreen = ({ navigation }) => {
       />
       <TextInput
         style={styles.input}
-        placeholder="ID"
-        value={id}
-        onChangeText={(text) => setId(text)}
+        placeholder="User ID"
+        value={userId}
+        onChangeText={(text) => setUserId(text)}
       />
       <TouchableOpacity style={styles.addButton} onPress={handleAddContact}>
         <Text style={styles.buttonText}>Add Contact</Text>
@@ -76,3 +117,5 @@ const styles = StyleSheet.create({
 });
 
 export default AddContactScreen;
+
+

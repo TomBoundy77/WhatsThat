@@ -1,24 +1,22 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BlockedUsersScreen = ({ navigation }) => {
-  // Sample list of blocked users
-  const blockedUsers = [
-    { id: '1', name: 'Blocked User 1' },
-    { id: '2', name: 'Blocked User 2' },
-    { id: '3', name: 'Blocked User 3' },
-    // Add more blocked user objects if needed
-  ];
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Render each blocked user item in the FlatList
   const renderItem = ({ item }) => (
     <View style={styles.blockedUserItem}>
       <Text style={styles.blockedUserName}>{item.name}</Text>
+      <TouchableOpacity style={styles.deleteButton} onPress={() => deleteBlockedUser(item.id)}>
+        <Text style={styles.buttonText}>Delete</Text>
+      </TouchableOpacity>
     </View>
   );
 
-  // Function to handle sign-out
+// Function to handle sign-out
   const handleSignOut = () => {
     //would remove const handleSignOut = () => { if code bellow worked
       // Have commented out so the navigation still works
@@ -58,55 +56,161 @@ const BlockedUsersScreen = ({ navigation }) => {
     navigation.navigate('SignIn');
   };
 
+  const handleAddBlockedUser = () => {
+    navigation.navigate('AddBlockedUser'); // Navigate to the AddBlockedUser component
+  };
+
+  const deleteBlockedUser = async (id) => {
+    try {
+      const token = 'd55958b384bb728ffd88208712cb99f9'; // Replace with your actual token
+      if (!token) {
+        console.log('Token not found. User not signed in.');
+        navigation.navigate('SignIn');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3333/api/1.0.0/user/contact/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'X-Authorization': token,
+        },
+      });
+
+      if (response.status === 200) {
+        // Successfully deleted the blocked user
+        // Now fetch the updated list of blocked users
+        getData();
+      } else if (response.status === 401) {
+        console.log('Unauthorized');
+        await AsyncStorage.removeItem('whatsthat_session_token');
+        await AsyncStorage.removeItem('whatsthat_user_id');
+        navigation.navigate('SignIn');
+      } else if (response.status === 404) {
+        console.log('Not Found');
+      } else {
+        throw new Error('Something went wrong');
+      }
+    } catch (error) {
+      console.log('Error deleting blocked user:', error);
+    }
+  };
+
+  const getData = async () => {
+    try {
+      const token = 'd55958b384bb728ffd88208712cb99f9'; // Replace with your actual token
+      if (!token) {
+        console.log('Token not found. User not signed in.');
+        navigation.navigate('SignIn');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3333/api/1.0.0/blocked', {
+        method: 'GET',
+        headers: {
+          'X-Authorization': token,
+        },
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        setBlockedUsers(data); // Update the state with the fetched blocked users
+      } else if (response.status === 401) {
+        console.log('Unauthorized');
+        await AsyncStorage.removeItem('whatsthat_session_token');
+        await AsyncStorage.removeItem('whatsthat_user_id');
+        navigation.navigate('SignIn');
+      } else {
+        throw new Error('Something went wrong');
+      }
+    } catch (error) {
+      console.log('Error fetching blocked users:', error);
+    } finally {
+      setIsLoading(false); // Set isLoading to false after data is fetched (whether successful or not)
+    }
+  };
+
+  useEffect(() => {
+    getData(); // Fetch blocked users when the component mounts
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="blue" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
         data={blockedUsers}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()} // Use toString() to convert the ID to a string
         contentContainerStyle={styles.listContainer}
       />
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
         <Text style={styles.buttonText}>Sign Out</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddBlockedUser}>
+        <Text style={styles.buttonText}>Add Blocked User</Text>
+      </TouchableOpacity>
     </View>
   );
 };
-const styles = StyleSheet.create({
-   container: {
-      flex: 1,
-      paddingHorizontal: 20,
-      paddingTop: 20,
-    },
-    listContainer: {
-      flexGrow: 1,
-    },
-    blockedUserItem: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#ddd',
-      paddingVertical: 16,
-    },
-    blockedUserName: {
-      fontSize: 18,
-    },
 
- signOutButton: {
-     backgroundColor: 'red',
-     paddingVertical: 8, // Adjust the padding to make the button smaller
-     paddingHorizontal: 16, // Adjust the padding to make the button smaller
-     borderRadius: 5,
-     marginTop: 20,
-     alignSelf: 'center', // Center the button horizontally
-     marginBottom: 20, // Add margin at the bottom to separate it from the chat list
-   },
-   buttonText: {
-     color: 'white',
-     fontSize: 16, // Decrease the font size to fit the smaller button
-     fontWeight: 'bold',
-     textAlign: 'center',
-   },
- });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  listContainer: {
+    flexGrow: 1,
+  },
+  blockedUserItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingVertical: 16,
+  },
+  blockedUserName: {
+    fontSize: 18,
+  },
+  deleteButton: {
+    backgroundColor: 'red',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+  },
+  signOutButton: {
+    backgroundColor: 'red',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+    marginTop: 20,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  addButton: {
+    backgroundColor: 'green',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+    marginTop: 10,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+});
 
 export default BlockedUsersScreen;
+
 
 

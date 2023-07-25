@@ -13,6 +13,7 @@ import BlockedUsersScreen from './components/BlockedUsersScreen';
 import SingleChatScreen from './components/SingleChatScreen';
 import ContactsScreen from './components/ContactsScreen';
 import AddContactScreen from './components/AddContactScreen';
+import AddBlockedUser from './components/AddBlockedUser';
 
 const AuthStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -82,6 +83,7 @@ const App = () => {
         <AuthStack.Screen name="Home" component={HomeStack} />
         <AuthStack.Screen name="AddNewUser" component={AddNewUserScreen} />
         <AuthStack.Screen name="SingleChat" component={SingleChatScreen} />
+        <AuthStack.Screen name="AddBlockedUser" component={AddBlockedUser} />
       </AuthStack.Navigator>
     </NavigationContainer>
   );
